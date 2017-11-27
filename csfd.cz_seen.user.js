@@ -2,9 +2,9 @@
 // @name		csfd.cz_seen
 // @namespace	csfd.cz
 // @description	Hide already seen movies on csfd.cz
-// @version		4
+// @version		5
 // @author		Marian Omelka
-// @match		https://www.csfd.cz/*
+// @match		https://www.csfd.cz/televize/*
 // @require		https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
 // @grant		GM_getValue
 // @grant		GM_setValue
