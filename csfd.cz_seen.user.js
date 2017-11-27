@@ -2,7 +2,7 @@
 // @name		csfd.cz_seen
 // @namespace	csfd.cz
 // @description	Hide already seen movies on csfd.cz
-// @version		3
+// @version		4
 // @author		Marian Omelka
 // @match		https://www.csfd.cz/*
 // @require		https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
@@ -18,20 +18,11 @@ function hideBox(){
 // Function used to iterate over every movie in the page
 function parseCsfd(){
 	var movieId = jQuery(this).attr('href').split('/')[2].split('-')[0];
-	try
-	{
-		var seenMovies = JSON.parse(GM_getValue('seenMovies'));
-	}
-	catch(e)
-	{
-		var seenMovies = new Array();
-	}
-	if(seenMovies.includes(movieId))
-	{
+	var seenMovies = JSON.parse(GM_getValue('seenMovies','[]'));
+	if(seenMovies.includes(movieId)){
 		jQuery(this).parent('div.name').parent('div.right').parent('li').addClass('seenMovie');
 		jQuery(this).parent('span.name').parent('div.text').parent('div.box').addClass('seenMovie');
-		if(GM_getValue('showSeenMovies') !== true)
-		{
+		if(GM_getValue('showSeenMovies') !== true){
 			jQuery(this).parent('div.name').parent('div.right').parent('li').hide();
 			jQuery(this).parent('span.name').parent('div.text').parent('div.box').hide();
 		}
@@ -43,12 +34,9 @@ function parseCsfd(){
 // Show floating div with Seen / Unseen button
 function showBox(){
 	var movieId = jQuery(this).find('a.film.c0,a.film.c1,a.film.c2,a.film.c3').attr('href').split('/')[2].split('-')[0];
-	if(jQuery(this).hasClass('seenMovie'))
-	{
+	if(jQuery(this).hasClass('seenMovie'))	{
 		jQuery(this).append('<div class="floatingPanel"><input type="button" movieId="' + movieId + '" id="alreadySeen" value="Unseen" /></div>');
-	}
-	else
-	{
+	} else {
 		jQuery(this).append('<div class="floatingPanel"><input type="button" movieId="' + movieId + '" id="alreadySeen" value="Seen" /></div>');
 	}
 	jQuery('#alreadySeen').click(toggleMovie);
@@ -57,21 +45,11 @@ function showBox(){
 // Toggle movie between Seen and Unseen state
 function toggleMovie(){
 	var movieId = jQuery(this).attr('movieId');
-	try
-	{
-		var seenMovies = JSON.parse(GM_getValue('seenMovies'));
-	}
-	catch(e)
-	{
-		var seenMovies = new Array();
-	}
-	if(jQuery(this).val() === 'Seen')
-	{
+	var seenMovies = JSON.parse(GM_getValue('seenMovies','[]'));
+	if(jQuery(this).val() === 'Seen'){
 		seenMovies.push(movieId);
 		seenMovies.sort();
-	}
-	else
-	{
+	} else {
 		seenMovies.splice(seenMovies.indexOf(movieId),1);
 	}
 	GM_setValue('seenMovies',JSON.stringify(seenMovies));
@@ -97,7 +75,7 @@ if(GM_getValue('showSeenMovies') === true){
 }
 
 // Log array of seen movies
-console.log('Seen movies: ' + GM_getValue('seenMovies'));
+console.log('Seen movies: ' + GM_getValue('seenMovies','[]'));
 
 // Iterate over all films
 jQuery('a.film.c0,a.film.c1,a.film.c2,a.film.c3').each(parseCsfd);
