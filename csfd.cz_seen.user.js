@@ -2,8 +2,9 @@
 // @name		csfd.cz_seen
 // @namespace	csfd.cz
 // @description	Hide already seen movies on csfd.cz
-// @version		6
+// @version		7
 // @author		Marian Omelka
+// @match		https://www.csfd.cz/film/*
 // @match		https://www.csfd.cz/televize/*
 // @require		https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
 // @grant		GM_deleteValue
@@ -82,7 +83,7 @@ function showBox(){
 	} else {
 		jQuery(this).append('<div class="floatingPanel"><input type="button" movieId="' + movieId + '" class="alreadySeen" value="Hide Movie" /></div>');
 		jQuery(this).append('<div class="floatingPanel"><input type="button" movieId="' + movieId + '" class="alreadySeen" value="Seen Movie" /></div>');
-		if(episodeId){
+		if(episodeId > 0){
 			jQuery(this).append('<div class="floatingPanel"><input type="button" movieId="' + movieId + '/' + episodeId + '" class="alreadySeen" value="Hide Episode" /></div>');
 			jQuery(this).append('<div class="floatingPanel"><input type="button" movieId="' + movieId + '/' + episodeId + '" class="alreadySeen" value="Seen Episode" /></div>');
 		}
@@ -130,7 +131,13 @@ function toggleShowSeenMovies(){
 }
 
 // Top left settings menu
-jQuery('body').append('<fieldset style="position:fixed;top:0;border:.1em solid black;padding:.2em;margin:1em;"><legend>Seen Movies Settings</legend><input type="checkbox" id="showHiddenMovies" />Show hidden movies<br /><input type="checkbox" id="showSeenMovies" />Show seen movies</fieldset>');
+jQuery('body').append(`
+	<fieldset id='settings' style='position:fixed;top:0;border:.1em solid black;padding:.2em;margin:1em;'>
+		<legend>Seen Movies Settings</legend>
+		<input type='checkbox' id='showHiddenMovies' />Show hidden movies<br />
+		<input type='checkbox' id='showSeenMovies' />Show seen movies
+		<input type='hidden' id='settingsItem' />
+	</fieldset>`);
 if(GM_getValue('showHiddenMovies') === true){
 	jQuery('#showHiddenMovies').prop('checked',true);
 }
@@ -152,3 +159,44 @@ if(GM_getValue('showSeenMovies') === true){
 
 // Iterate over all films
 jQuery('a.film.c0,a.film.c1,a.film.c2,a.film.c3').each(parseCsfd);
+
+// Show buttons in movie pages
+if(document.location.pathname.startsWith('/film/')){
+	var movieId = document.location.pathname.split('/')[2].split('-')[0];
+	var episodeId = document.location.pathname.split('/')[3].split('-')[0];
+	var hiddenMovies = JSON.parse(GM_getValue('hiddenMovies','[]'));
+	var seenMovies = JSON.parse(GM_getValue('seenMovies','[]'));
+
+	if(hiddenMovies.includes(movieId)){
+		jQuery('#settingsItem').addClass('hiddenMovie');
+	}
+	if(hiddenMovies.includes(movieId + '/' + episodeId)){
+		jQuery('#settingsItem').addClass('hiddenEpisode');
+	}
+	if(seenMovies.includes(movieId)){
+		jQuery('#settingsItem').addClass('seenMovie');
+	}
+	if(seenMovies.includes(movieId + '/' + episodeId)){
+		jQuery('#settingsItem').addClass('seenEpisode');
+	}
+
+	if(jQuery('#settings').hasClass('hiddenMovie') || jQuery('#settingsItem').hasClass('hiddenEpisode') || jQuery('#settingsItem').hasClass('seenMovie') || jQuery('#settingsItem').hasClass('seenEpisode')){
+		if(jQuery('#settingsItem').hasClass('hiddenMovie')){
+			jQuery('fieldset#settings').append('<div class="floatingPanel"><input type="button" movieId="' + movieId + '" class="alreadySeen" value="Unhide Movie" /></div>');
+		} else if(jQuery('#settingsItem').hasClass('hiddenEpisode')){
+			jQuery('fieldset#settings').append('<div class="floatingPanel"><input type="button" movieId="' + movieId + '/' + episodeId + '" class="alreadySeen" value="Unhide Episode" /></div>');
+		} else if(jQuery('#settingsItem').hasClass('seenMovie')){
+			jQuery('fieldset#settings').append('<div class="floatingPanel"><input type="button" movieId="' + movieId + '" class="alreadySeen" value="Unseen Movie" /></div>');
+		} else if(jQuery('#settingsItem').hasClass('seenEpisode')){
+			jQuery('fieldset#settings').append('<div class="floatingPanel"><input type="button" movieId="' + movieId + '/' + episodeId + '" class="alreadySeen" value="Unseen Episode" /></div>');
+		}
+	} else {
+		jQuery('fieldset#settings').append('<div class="floatingPanel"><input type="button" movieId="' + movieId + '" class="alreadySeen" value="Hide Movie" /></div>');
+		jQuery('fieldset#settings').append('<div class="floatingPanel"><input type="button" movieId="' + movieId + '" class="alreadySeen" value="Seen Movie" /></div>');
+		if(episodeId > 0){
+			jQuery('fieldset#settings').append('<div class="floatingPanel"><input type="button" movieId="' + movieId + '/' + episodeId + '" class="alreadySeen" value="Hide Episode" /></div>');
+			jQuery('fieldset#settings').append('<div class="floatingPanel"><input type="button" movieId="' + movieId + '/' + episodeId + '" class="alreadySeen" value="Seen Episode" /></div>');
+		}
+	}
+	jQuery('.alreadySeen').click(toggleMovie);
+}
