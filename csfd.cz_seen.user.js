@@ -2,7 +2,7 @@
 // @name		csfd.cz_seen
 // @namespace	csfd.cz
 // @description	Hide already seen movies on csfd.cz
-// @version		8
+// @version		9
 // @author		Marian Omelka
 // @match		https://www.csfd.cz/*
 // @require		https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
@@ -57,18 +57,21 @@ function parseCsfd(){
 	jQuery(this).parent('span.name').parent('div.text').parent('div.box').addClass(addClass);
 	jQuery(this).parent('h3.subject').parent('div').parent('li').addClass(addClass);
 	jQuery(this).parent('td.film').parent('tr').addClass(addClass);
+	jQuery(this).parent('li').addClass(addClass);
 
 	if(hide){
 		jQuery(this).parent('div.name').parent('div.right').parent('li').hide();
 		jQuery(this).parent('span.name').parent('div.text').parent('div.box').hide();
 		jQuery(this).parent('h3.subject').parent('div').parent('li').hide();
 		jQuery(this).parent('td.film').parent('tr').hide();
+		jQuery(this).parent('li').hide();
 	}
 
 	jQuery(this).parent('div.name').parent('div.right').parent('li').hover(showBox,hideBox);
 	jQuery(this).parent('span.name').parent('div.text').parent('div.box').hover(showBox,hideBox);
 	jQuery(this).parent('h3.subject').parent('div').parent('li').hover(showBox,hideBox);
 	jQuery(this).parent('td.film').parent('tr').hover(showBox,hideBox);
+	jQuery(this).parent('li').hover(showBox,hideBox);
 }
 
 // Show floating div with Seen / Unseen button
@@ -190,17 +193,17 @@ if(document.location.pathname.startsWith('/film/')){
 		}
 	}
 	jQuery('.alreadySeen').click(toggleMovie);
-} else {
-	// CSS styles for seen movies
-	if(GM_getValue('showHiddenMovies') === true){
-		jQuery('head').append('<style type="text/css">.hiddenMovie{opacity:.33;}.hiddenMovie:hover{opacity:.66;}</style>');
-		jQuery('head').append('<style type="text/css">.hiddenEpisode{opacity:.33;}.hiddenEpisode:hover{opacity:.66;}</style>');
-	}
-	if(GM_getValue('showSeenMovies') === true){
-		jQuery('head').append('<style type="text/css">.seenMovie{opacity:.33;}.seenMovie:hover{opacity:.66;}</style>');
-		jQuery('head').append('<style type="text/css">.seenEpisode{opacity:.33;}.seenEpisode:hover{opacity:.66;}</style>');
-	}
-
-	// Iterate over all films
-	jQuery('a.film.c0,a.film.c1,a.film.c2,a.film.c3,td.film a').each(parseCsfd);
 }
+
+// CSS styles for seen movies
+if(GM_getValue('showHiddenMovies') === true){
+	jQuery('head').append('<style type="text/css">.hiddenMovie{opacity:.33;}.hiddenMovie:hover{opacity:.66;}</style>');
+	jQuery('head').append('<style type="text/css">.hiddenEpisode{opacity:.33;}.hiddenEpisode:hover{opacity:.66;}</style>');
+}
+if(GM_getValue('showSeenMovies') === true){
+	jQuery('head').append('<style type="text/css">.seenMovie{opacity:.33;}.seenMovie:hover{opacity:.66;}</style>');
+	jQuery('head').append('<style type="text/css">.seenEpisode{opacity:.33;}.seenEpisode:hover{opacity:.66;}</style>');
+}
+
+// Iterate over all films
+jQuery('a.film.c0,a.film.c1,a.film.c2,a.film.c3,td.film a').each(parseCsfd);
